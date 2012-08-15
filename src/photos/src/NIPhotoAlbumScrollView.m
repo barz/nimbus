@@ -20,6 +20,9 @@
 #import "NIPhotoAlbumScrollViewDataSource.h"
 #import "NimbusCore.h"
 
+#if !defined(__has_feature) || !__has_feature(objc_arc)
+#error "Nimbus requires ARC support."
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -30,15 +33,6 @@
 @synthesize photoViewBackgroundColor = _photoViewBackgroundColor;
 @synthesize zoomingIsEnabled = _zoomingIsEnabled;
 @synthesize zoomingAboveOriginalSizeIsEnabled = _zoomingAboveOriginalSizeIsEnabled;
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-- (void)dealloc {
-  NI_RELEASE_SAFELY(_loadingImage);
-  NI_RELEASE_SAFELY(_photoViewBackgroundColor);
-
-  [super dealloc];
-}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -158,7 +152,7 @@
   NSString* reuseIdentifier = @"photo";
   pageView = [pagingScrollView dequeueReusablePageWithIdentifier:reuseIdentifier];
   if (nil == pageView) {
-    pageView = [[[NIPhotoScrollView alloc] init] autorelease];
+    pageView = [[NIPhotoScrollView alloc] init];
     pageView.reuseIdentifier = reuseIdentifier;
     pageView.backgroundColor = self.photoViewBackgroundColor;
   }
@@ -209,8 +203,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setPhotoViewBackgroundColor:(UIColor *)photoViewBackgroundColor {
   if (_photoViewBackgroundColor != photoViewBackgroundColor) {
-    [_photoViewBackgroundColor release];
-    _photoViewBackgroundColor = [photoViewBackgroundColor retain];
+      _photoViewBackgroundColor = photoViewBackgroundColor;
     
     for (UIView<NIPagingScrollViewPage>* page in self.visiblePages) {
       page.backgroundColor = photoViewBackgroundColor;

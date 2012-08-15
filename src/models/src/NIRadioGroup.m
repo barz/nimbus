@@ -19,6 +19,11 @@
 #import "NIRadioGroupController.h"
 #import "NITableViewModel.h"
 #import "NimbusCore.h"
+#import <objc/runtime.h>
+
+#if !defined(__has_feature) || !__has_feature(objc_arc)
+#error "Nimbus requires ARC support."
+#endif
 
 static const NSInteger kInvalidSelection = NSIntegerMin;
 
@@ -27,7 +32,7 @@ static const NSInteger kInvalidSelection = NSIntegerMin;
 @property (nonatomic, readonly, retain) NSMutableDictionary* objectMap;
 @property (nonatomic, readonly, retain) NSMutableSet* objectSet;
 @property (nonatomic, readonly, retain) NSMutableArray* objectOrder;
-@property (nonatomic, readwrite, assign) BOOL hasSelection;
+@property (nonatomic, assign) BOOL hasSelection;
 @property (nonatomic, readonly, retain) NSMutableSet* forwardDelegates;
 @end
 
@@ -47,19 +52,6 @@ static const NSInteger kInvalidSelection = NSIntegerMin;
 @synthesize forwardDelegates = _forwardDelegates;
 @synthesize cellTitle = _cellTitle;
 @synthesize controllerTitle = _controllerTitle;
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-- (void)dealloc {
-  [_objectMap release];
-  [_objectSet release];
-  [_objectOrder release];
-  [_cellTitle release];
-  [_controllerTitle release];
-  [_forwardDelegates release];
-
-  [super dealloc];
-}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -117,35 +109,46 @@ static const NSInteger kInvalidSelection = NSIntegerMin;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+- (BOOL)shouldForwardSelector:(SEL)selector {
+  struct objc_method_description description;
+  description = protocol_getMethodDescription(@protocol(UITableViewDelegate), selector, NO, YES);
+  return (description.name != NULL && description.types != NULL);
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (BOOL)respondsToSelector:(SEL)selector {
+  if ([super respondsToSelector:selector]) {
+    return YES;
+    
+  } else if ([self shouldForwardSelector:selector]) {
+    for (id delegate in self.forwardDelegates) {
+      if ([delegate respondsToSelector:selector]) {
+        return YES;
+      }
+    }
+  }
+  return NO;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)forwardInvocation:(NSInvocation *)invocation {
   BOOL didForward = NO;
 
-  for (id delegate in self.forwardDelegates) {
-    if ([delegate respondsToSelector:invocation.selector]) {
-      [invocation invokeWithTarget:delegate];
-      didForward = YES;
-      break;
+  if ([self shouldForwardSelector:invocation.selector]) {
+    for (id delegate in self.forwardDelegates) {
+      if ([delegate respondsToSelector:invocation.selector]) {
+        [invocation invokeWithTarget:delegate];
+        didForward = YES;
+        break;
+      }
     }
   }
 
   if (!didForward) {
     [super forwardInvocation:invocation];
   }
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-- (BOOL)respondsToSelector:(SEL)selector {
-  BOOL doesRespond = [super respondsToSelector:selector];
-  if (!doesRespond) {
-    for (id delegate in self.forwardDelegates) {
-      doesRespond = [delegate respondsToSelector:selector];
-      if (doesRespond) {
-        break;
-      }
-    }
-  }
-  return doesRespond;
 }
 
 
@@ -255,7 +258,7 @@ static const NSInteger kInvalidSelection = NSIntegerMin;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSArray *)allObjects {
-  return [[self.objectOrder copy] autorelease];
+  return [self.objectOrder copy];
 }
 
 
@@ -298,15 +301,18 @@ static const NSInteger kInvalidSelection = NSIntegerMin;
       // You must provide a controller in the initWithController: initializer.
       NIDASSERT(nil != self.controller);
 
-      NIRadioGroupController* controller = [[[NIRadioGroupController alloc] initWithRadioGroup:self tappedCell:(id<NICell>)[tableView cellForRowAtIndexPath:indexPath]] autorelease];
+      NIRadioGroupController* controller = [[NIRadioGroupController alloc] initWithRadioGroup:self tappedCell:(id<NICell>)[tableView cellForRowAtIndexPath:indexPath]];
       controller.title = self.controllerTitle;
 
+      BOOL shouldPush = YES;
       // Notify the delegate that the controller is about to appear.
       if ([self.delegate respondsToSelector:@selector(radioGroup:radioGroupController:willAppear:)]) {
-        [self.delegate radioGroup:self radioGroupController:controller willAppear:YES];
+        shouldPush = [self.delegate radioGroup:self radioGroupController:controller willAppear:YES];
       }
 
-      [self.controller.navigationController pushViewController:controller animated:YES];
+      if (shouldPush) {
+        [self.controller.navigationController pushViewController:controller animated:YES];
+      }
 
     } else if ([self isObjectInRadioGroup:object]) {
       NSInteger newSelection = [self identifierForObject:object];

@@ -17,6 +17,10 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
+#if defined __cplusplus
+extern "C" {
+#endif
+
 /**
  * For common system metrics.
  *
@@ -70,6 +74,16 @@
 #ifndef UIViewAutoresizingFlexibleDimensions
 #define UIViewAutoresizingFlexibleDimensions (UIViewAutoresizingFlexibleWidth \
                                               | UIViewAutoresizingFlexibleHeight)
+#endif
+
+#ifndef UIViewAutoresizingNavigationBar
+#define UIViewAutoresizingNavigationBar (UIViewAutoresizingFlexibleWidth \
+                                         | UIViewAutoresizingFlexibleBottomMargin)
+#endif
+
+#ifndef UIViewAutoresizingToolbar
+#define UIViewAutoresizingToolbar (UIViewAutoresizingFlexibleWidth \
+                                   | UIViewAutoresizingFlexibleTopMargin)
 #endif
 
 /**
@@ -144,6 +158,10 @@ NSTimeInterval NIDeviceRotationDuration(BOOL isFlippingUpsideDown);
  * Value: 10 pixels on all sides.
  */
 UIEdgeInsets NICellContentPadding(void);
+
+#if defined __cplusplus
+};
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /**@}*/// End of Common Metrics ///////////////////////////////////////////////////////////////////

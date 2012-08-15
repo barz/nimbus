@@ -26,7 +26,7 @@
 /**
  * A single photo view that supports zooming and rotation.
  *
- *      @ingroup Photos-Views
+ *      @ingroup NimbusPhotos
  */
 @interface NIPhotoScrollView : UIView <
   UIScrollViewDelegate,
@@ -44,10 +44,11 @@
   // Configurable State
   BOOL _zoomingIsEnabled;
   BOOL _zoomingAboveOriginalSizeIsEnabled;
+  BOOL _doubleTapToZoomIsEnabled;
 
   UITapGestureRecognizer* _doubleTapGestureRecognizer;
 
-  id<NIPhotoScrollViewDelegate> _photoScrollViewDelegate;
+  __unsafe_unretained id<NIPhotoScrollViewDelegate> _photoScrollViewDelegate;
 }
 
 #pragma mark Configuring Functionality
@@ -55,6 +56,7 @@
 @property (nonatomic, readwrite, assign, getter=isZoomingEnabled) BOOL zoomingIsEnabled; // default: yes
 @property (nonatomic, readwrite, assign, getter=isZoomingAboveOriginalSizeEnabled) BOOL zoomingAboveOriginalSizeIsEnabled; // default: yes
 @property (nonatomic, readwrite, assign, getter=isDoubleTapToZoomEnabled) BOOL doubleTapToZoomIsEnabled; // default: yes
+@property (nonatomic, readwrite, assign) CGFloat maximumScale; // default: 0 (autocalculate)
 @property (nonatomic, readwrite, assign) id<NIPhotoScrollViewDelegate> photoScrollViewDelegate;
 
 #pragma mark State
@@ -106,6 +108,15 @@
  * By default this is YES.
  *
  *      @fn NIPhotoScrollView::doubleTapToZoomIsEnabled
+ */
+
+/**
+ * The maximum scale of the image.
+ *
+ * By default this is 0, meaning the view will automatically determine the maximum scale.
+ * Setting this to a non-zero value will override the automatically-calculated maximum scale.
+ *
+ *      @fn NIPhotoScrollView::maximumScale
  */
 
 /**

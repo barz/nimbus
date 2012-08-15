@@ -23,6 +23,10 @@
 #import "NIDebuggingTools.h"
 #import "NIDeviceOrientation.h"
 
+#if !defined(__has_feature) || !__has_feature(objc_arc)
+#error "Nimbus requires ARC support."
+#endif
+
 @interface NIRadioGroupController ()
 @property (nonatomic, readonly, retain) NIRadioGroup* radioGroup;
 @property (nonatomic, readonly, retain) id<NICell> tappedCell;
@@ -43,10 +47,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)dealloc {
   [_radioGroup removeForwarding:self];
-  [_radioGroup release];
-  [_model release];
-
-  [super dealloc];
 }
 
 
@@ -55,8 +55,8 @@
   if ((self = [super initWithStyle:UITableViewStyleGrouped])) {
     // A valid radio group must be provided.
     NIDASSERT(nil != radioGroup);
-    _radioGroup = [radioGroup retain];
-    _tappedCell = [tappedCell retain];
+    _radioGroup = radioGroup;
+    _tappedCell = tappedCell;
 
     _model = [[NITableViewModel alloc] initWithListArray:_radioGroup.allObjects
                                                 delegate:(id)[NICellFactory class]];

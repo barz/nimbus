@@ -23,6 +23,10 @@
 #import "NIOverviewGraphView.h"
 #import "NIOverViewLogger.h"
 
+#if !defined(__has_feature) || !__has_feature(objc_arc)
+#error "Nimbus requires ARC support."
+#endif
+
 static UIEdgeInsets kPagePadding;
 static const CGFloat kGraphRightMargin = 5;
 
@@ -43,23 +47,14 @@ static const CGFloat kGraphRightMargin = 5;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-- (void)dealloc {
-  NI_RELEASE_SAFELY(_pageTitle);
-  _titleLabel = nil;
-
-  [super dealloc];
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 + (NIOverviewPageView *)page {
-  return [[[[self class] alloc] initWithFrame:CGRectZero] autorelease];
+  return [[[self class] alloc] initWithFrame:CGRectZero];
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UILabel *)label {
-  UILabel* label = [[[UILabel alloc] init] autorelease];
+  UILabel* label = [[UILabel alloc] init];
   label.backgroundColor = [UIColor clearColor];
   label.font = [UIFont boldSystemFontOfSize:12];
   label.textColor = [UIColor whiteColor];
@@ -75,7 +70,7 @@ static const CGFloat kGraphRightMargin = 5;
   if ((self = [super initWithFrame:frame])) {
     self.clipsToBounds = YES;
 
-    _titleLabel = [[[UILabel alloc] init] autorelease];
+    _titleLabel = [[UILabel alloc] init];
     _titleLabel.backgroundColor = [UIColor clearColor];
     _titleLabel.font = [UIFont boldSystemFontOfSize:11];
     _titleLabel.textColor = [UIColor colorWithWhite:1 alpha:0.8f];
@@ -100,7 +95,6 @@ static const CGFloat kGraphRightMargin = 5;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setPageTitle:(NSString *)pageTitle {
   if (_pageTitle != pageTitle) {
-    [_pageTitle release];
     _pageTitle = [pageTitle copy];
 
     _titleLabel.text = _pageTitle;
@@ -129,16 +123,6 @@ static const CGFloat kGraphRightMargin = 5;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-- (void)dealloc {
-  _label1 = nil;
-  _label2 = nil;
-  _graphView = nil;
-
-  [super dealloc];
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)frame {
   if ((self = [super initWithFrame:frame])) {
     self.pageTitle = NSLocalizedString(@"Memory", @"Overview Page Title: Memory");
@@ -147,8 +131,8 @@ static const CGFloat kGraphRightMargin = 5;
     [self addSubview:_label1];
     _label2 = [self label];
     [self addSubview:_label2];
-
-    _graphView = [[[NIOverviewGraphView alloc] init] autorelease];
+    
+    _graphView = [[NIOverviewGraphView alloc] init];
     _graphView.dataSource = self;
     [self addSubview:_graphView];
   }
@@ -238,8 +222,7 @@ static const CGFloat kGraphRightMargin = 5;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)resetEventIterator {
-  NI_RELEASE_SAFELY(_eventEnumerator);
-  _eventEnumerator = [[[[NIOverview logger] eventLogs] objectEnumerator] retain];
+  _eventEnumerator = [[[NIOverview logger] eventLogs] objectEnumerator];
 }
 
 
@@ -249,9 +232,9 @@ static const CGFloat kGraphRightMargin = 5;
                        color: (UIColor **)color {
   static NSArray* sEventColors = nil;
   if (nil == sEventColors) {
-    sEventColors = [[NSArray arrayWithObjects:
+    sEventColors = [NSArray arrayWithObjects:
                      [UIColor redColor], // NIOverviewEventDidReceiveMemoryWarning
-                     nil] retain];
+                     nil];
   }
   NIOverviewEventLogEntry* entry = [_eventEnumerator nextObject];
   if (nil != entry) {
@@ -270,14 +253,6 @@ static const CGFloat kGraphRightMargin = 5;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 @implementation NIOverviewMemoryPageView
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-- (void)dealloc {
-  NI_RELEASE_SAFELY(_enumerator);
-
-  [super dealloc];
-}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -336,8 +311,7 @@ static const CGFloat kGraphRightMargin = 5;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)resetPointIterator {
-  NI_RELEASE_SAFELY(_enumerator);
-  _enumerator = [[[[NIOverview logger] deviceLogs] objectEnumerator] retain];
+  _enumerator = [[[NIOverview logger] deviceLogs] objectEnumerator];
 }
 
 
@@ -370,14 +344,6 @@ static const CGFloat kGraphRightMargin = 5;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 @implementation NIOverviewDiskPageView
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-- (void)dealloc {
-  NI_RELEASE_SAFELY(_enumerator);
-  
-  [super dealloc];
-}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -474,17 +440,12 @@ static const CGFloat kGraphRightMargin = 5;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)dealloc {
   [[NSOperationQueue mainQueue] removeObserver:self];
-
-  _logScrollView = nil;
-  _logLabel = nil;
-
-  [super dealloc];
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UILabel *)label {
-  UILabel* label = [[[UILabel alloc] init] autorelease];
+  UILabel* label = [[UILabel alloc] init];
   
   label.font = [UIFont boldSystemFontOfSize:11];
   label.textColor = [UIColor whiteColor];
@@ -505,7 +466,7 @@ static const CGFloat kGraphRightMargin = 5;
 
     self.titleLabel.textColor = [UIColor colorWithWhite:1 alpha:0.5f];
 
-    _logScrollView = [[[UIScrollView alloc] initWithFrame:self.bounds] autorelease];
+    _logScrollView = [[UIScrollView alloc] initWithFrame:self.bounds];
     _logScrollView.showsHorizontalScrollIndicator = NO;
     _logScrollView.alwaysBounceVertical = YES;
     _logScrollView.contentInset = kPagePadding;
@@ -616,19 +577,8 @@ static const CGFloat kGraphRightMargin = 5;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-- (void)dealloc {
-  _logLevelSlider = nil;
-  _errorLogLevelLabel = nil;
-  _warningLogLevelLabel = nil;
-  _infoLogLevelLabel = nil;
-
-  [super dealloc];
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UILabel *)label {
-  UILabel* label = [[[UILabel alloc] init] autorelease];
+  UILabel* label = [[UILabel alloc] init];
   
   label.font = [UIFont boldSystemFontOfSize:11];
   label.textColor = [UIColor whiteColor];
@@ -658,7 +608,7 @@ static const CGFloat kGraphRightMargin = 5;
 
     self.titleLabel.textColor = [UIColor colorWithWhite:1 alpha:0.5f];
 
-    _logLevelSlider = [[[UISlider alloc] init] autorelease];
+    _logLevelSlider = [[UISlider alloc] init];
     _logLevelSlider.minimumValue = 1;
     _logLevelSlider.maximumValue = 5;
     [_logLevelSlider addTarget: self
@@ -777,16 +727,6 @@ static const CGFloat kGraphRightMargin = 5;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-- (void)dealloc {
-  NI_RELEASE_SAFELY(_enumerator);
-  NI_RELEASE_SAFELY(_history);
-  NI_RELEASE_SAFELY(_cache);
-
-  [super dealloc];
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)frame {
   if ((self = [super initWithFrame:frame])) {
     self.pageTitle = NSLocalizedString(@"Memory Cache", @"Overview Page Title: Memory Cache");
@@ -795,7 +735,7 @@ static const CGFloat kGraphRightMargin = 5;
     self.history = [NILinkedList linkedList];
     self.graphView.dataSource = self;
 
-    UITapGestureRecognizer* tap = [[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTap:)] autorelease];
+    UITapGestureRecognizer* tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTap:)];
     // We still want to be able to drag the pages.
     tap.cancelsTouchesInView = NO;
     [self addGestureRecognizer:tap];
@@ -806,7 +746,7 @@ static const CGFloat kGraphRightMargin = 5;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 + (id)pageWithCache:(NIMemoryCache *)cache {
-  NIOverviewMemoryCachePageView* pageView = [[[[self class] alloc] initWithFrame:CGRectZero] autorelease];
+  NIOverviewMemoryCachePageView* pageView = [[[self class] alloc] initWithFrame:CGRectZero];
   pageView.cache = cache;
   return pageView;
 }
@@ -827,7 +767,7 @@ static const CGFloat kGraphRightMargin = 5;
                         NIStringFromBytes(imageCache.maxNumberOfPixelsUnderStress),
                         NIStringFromBytes(imageCache.maxNumberOfPixels)];
 
-    NIOverviewImageMemoryCacheEntry* imageEntry = [[[NIOverviewImageMemoryCacheEntry alloc] init] autorelease];
+    NIOverviewImageMemoryCacheEntry* imageEntry = [[NIOverviewImageMemoryCacheEntry alloc] init];
     imageEntry.numberOfPixels = imageCache.numberOfPixels;
     imageEntry.maxNumberOfPixels = imageCache.maxNumberOfPixels;
     imageEntry.maxNumberOfPixelsUnderStress = imageCache.maxNumberOfPixelsUnderStress;
@@ -837,7 +777,7 @@ static const CGFloat kGraphRightMargin = 5;
     self.label1.text = [NSString stringWithFormat:@"%d objects", self.cache.count];
     self.label2.text = nil;
 
-    entry = [[[NIOverviewMemoryCacheEntry alloc] init] autorelease];
+    entry = [[NIOverviewMemoryCacheEntry alloc] init];
   }
 
   entry.timestamp = [NSDate date];
@@ -861,10 +801,13 @@ static const CGFloat kGraphRightMargin = 5;
     // a dependency on the models feature.
     Class class = NSClassFromString(@"NIOverviewMemoryCacheController");
     if (nil != class) {
-      id instance = [[class alloc] autorelease];
+      id instance = [class alloc];
       SEL initSelector = @selector(initWithMemoryCache:);
       NIDASSERT([instance respondsToSelector:initSelector]);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
       UIViewController* controller = [instance performSelector:initSelector withObject:self.cache];
+#pragma clang diagnostic pop
       controller.title = @"Memory Cache";
       [(UINavigationController *)rootController pushViewController:controller animated:YES];
     }
@@ -912,8 +855,7 @@ static const CGFloat kGraphRightMargin = 5;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)resetPointIterator {
-  NI_RELEASE_SAFELY(_enumerator);
-  _enumerator = [[self.history objectEnumerator] retain];
+  _enumerator = [self.history objectEnumerator];
 }
 
 

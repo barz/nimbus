@@ -18,20 +18,13 @@
 
 #import "FacebookPhotoAlbumViewController.h"
 #import "DribbblePhotoAlbumViewController.h"
+#import "AFNetworking.h"
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 @implementation CatalogTableViewController
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-- (void)dealloc {
-  NI_RELEASE_SAFELY(_model);
-  
-  [super dealloc];
-}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -133,9 +126,8 @@
   UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:@"row"];
 
   if (nil == cell) {
-    cell = [[[UITableViewCell alloc] initWithStyle: UITableViewCellStyleDefault
-                                   reuseIdentifier: @"row"]
-            autorelease];
+    cell = [[UITableViewCell alloc] initWithStyle: UITableViewCellStyleDefault
+                                   reuseIdentifier: @"row"];
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
   }
 
@@ -158,14 +150,7 @@
   Class vcClass = [object objectForKey:@"class"];
   id initWith = [object objectForKey:@"initWith"];
   NSString* title = [object objectForKey:@"title"];
-  UIViewController* vc = nil;
-  
-  SEL selector = (SEL)[[object objectForKey:@"initWithSelector"] nonretainedObjectValue];
-  if (nil == selector) {
-    vc = [[[vcClass alloc] initWith:initWith] autorelease];
-  } else {
-    vc = [[[vcClass alloc] performSelector:selector withObject:initWith] autorelease];
-  }
+  UIViewController* vc = [[vcClass alloc] initWith:initWith];
   vc.title = title;
 
   [self.navigationController pushViewController:vc animated:YES];

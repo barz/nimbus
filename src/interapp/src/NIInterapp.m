@@ -18,6 +18,9 @@
 
 #import "NimbusCore+Additions.h"
 
+#if !defined(__has_feature) || !__has_feature(objc_arc)
+#error "Nimbus requires ARC support."
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -49,6 +52,56 @@
 + (BOOL)safariWithURL:(NSURL *)url {
   return [[UIApplication sharedApplication] openURL:url];
 }
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Google Chrome
+
+/**
+ * Based on https://developers.google.com/chrome/mobile/docs/ios-links
+ */
+
+static NSString* const sGoogleChromeHttpScheme = @"googlechrome:";
+static NSString* const sGoogleChromeHttpsScheme = @"googlechomes:";
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
++ (BOOL)googleChromeIsInstalled {
+    return [[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:sGoogleChromeHttpScheme]];
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
++ (BOOL)googleChromeWithURL:(NSURL *)url {
+    NSString *chromeScheme = nil;
+    if ([url.scheme isEqualToString:@"http"]) {
+        chromeScheme = sGoogleChromeHttpScheme;
+    } else if ([url.scheme isEqualToString:@"https"]) {
+        chromeScheme = sGoogleChromeHttpsScheme;
+    }
+    
+    if (chromeScheme) {
+        NSRange rangeForScheme = [[url absoluteString] rangeOfString:@":"];
+        NSString *urlNoScheme =  [[url absoluteString] substringFromIndex:rangeForScheme.location + 1];
+        NSString *chromeUrlString = [chromeScheme stringByAppendingString:urlNoScheme];
+        NSURL *chromeUrl = [NSURL URLWithString:chromeUrlString];
+        
+        BOOL didOpen = [[UIApplication sharedApplication] openURL:chromeUrl];
+        if (!didOpen) {
+            didOpen = [self appStoreWithAppId:[self googleChromeAppStoreId]];
+        }
+        
+        return didOpen;
+    }
+
+    return NO;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
++ (NSString *)googleChromeAppStoreId {
+    return @"535886823";
+}
+
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -428,6 +481,10 @@ static NSString* const sInstagramScheme = @"instagram:";
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 + (NSURL *)urlForInstagramImageAtFilePath:(NSString *)filePath error:(NSError **)error {
+  if (![self instagramIsInstalled]) {
+    return nil;
+  }
+
   UIImage* image = [[UIImage alloc] initWithContentsOfFile:filePath];
 
   // Unable to read the image.
@@ -450,13 +507,9 @@ static NSString* const sInstagramScheme = @"instagram:";
                                userInfo: [NSDictionary dictionaryWithObject: image
                                                                      forKey: NIImageErrorKey]];
     }
-    NI_RELEASE_SAFELY(image);
     return nil;
   }
 
-  // Immediately remove the image from memory.
-  NI_RELEASE_SAFELY(image);
-  
   NSFileManager* fm = [NSFileManager defaultManager];
   NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
 
@@ -502,6 +555,17 @@ static NSString* const sInstagramScheme = @"instagram:";
   return [[UIApplication sharedApplication] openURL:[NSURL URLWithString:urlPath]];
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
++ (BOOL)appStoreGiftWithAppId:(NSString *)appId {
+    NSString* urlPath = [NSString stringWithFormat:@"itms-appss://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/giftSongsWizard?gift=1&salableAdamId=%@&productType=C&pricingParameter=STDQ&mt=8&ign-mscache=1", appId];
+    return [[UIApplication sharedApplication] openURL:[NSURL URLWithString:urlPath]];
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
++ (BOOL)appStoreReviewWithAppId:(NSString *)appId {
+    NSString* urlPath = [@"itms-apps://ax.itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?type=Purple+Software&id=" stringByAppendingString:appId];
+    return [[UIApplication sharedApplication] openURL:[NSURL URLWithString:urlPath]];
+}
 
 @end
 
@@ -519,20 +583,8 @@ static NSString* const sInstagramScheme = @"instagram:";
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-- (void)dealloc {
-  NI_RELEASE_SAFELY(_recipient);
-  NI_RELEASE_SAFELY(_cc);
-  NI_RELEASE_SAFELY(_bcc);
-  NI_RELEASE_SAFELY(_subject);
-  NI_RELEASE_SAFELY(_body);
-
-  [super dealloc];
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 + (id)invocation {
-  return [[[[self class] alloc] init] autorelease];
+  return [[[self class] alloc] init];
 }
 
 

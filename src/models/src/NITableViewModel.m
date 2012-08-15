@@ -20,6 +20,9 @@
 
 #import "NimbusCore.h"
 
+#if !defined(__has_feature) || !__has_feature(objc_arc)
+#error "Nimbus requires ARC support."
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -36,20 +39,6 @@
 #if NS_BLOCKS_AVAILABLE
 @synthesize createCellBlock = _createCellBlock;
 #endif // #if NS_BLOCKS_AVAILABLE
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-- (void)dealloc {
-  NI_RELEASE_SAFELY(_sections);
-  NI_RELEASE_SAFELY(_sectionIndexTitles);
-  NI_RELEASE_SAFELY(_sectionPrefixToSectionIndex);
-
-#if NS_BLOCKS_AVAILABLE
-  NI_RELEASE_SAFELY(_createCellBlock);
-#endif // #if NS_BLOCKS_AVAILABLE
-
-  [super dealloc];
-}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -157,7 +146,7 @@
         [sections addObject:section];
       }
 
-      NI_RELEASE_SAFELY(currentSectionRows);
+      currentSectionRows = nil;
       currentSectionHeaderTitle = nextSectionHeaderTitle;
       currentSectionFooterTitle = nil;
     }
@@ -171,7 +160,7 @@
     section.rows = currentSectionRows;
     [sections addObject:section];
   }
-  NI_RELEASE_SAFELY(currentSectionRows);
+  currentSectionRows = nil;
 
   // Update the compiled information for this data source.
   self.sections = sections;
@@ -180,7 +169,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)_compileSectionIndex {
-  NI_RELEASE_SAFELY(_sectionIndexTitles);
+  _sectionIndexTitles = nil;
 
   // Prime the section index and the map
   NSMutableArray* titles = nil;
@@ -269,14 +258,14 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-  return MAX(1, self.sections.count);
+  return MAX(1U, self.sections.count);
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-  NIDASSERT((section >= 0 && section < self.sections.count) || 0 == self.sections.count);
-  if (section >= 0 && section < self.sections.count) {
+  NIDASSERT((section >= 0 && (NSUInteger)section < self.sections.count) || 0 == self.sections.count);
+  if (section >= 0 && (NSUInteger)section < self.sections.count) {
     return [[self.sections objectAtIndex:section] headerTitle];
 
   } else {
@@ -287,8 +276,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section {
-  NIDASSERT((section >= 0 && section < self.sections.count) || 0 == self.sections.count);
-  if (section >= 0 && section < self.sections.count) {
+  NIDASSERT((section >= 0 && (NSUInteger)section < self.sections.count) || 0 == self.sections.count);
+  if (section >= 0 && (NSUInteger)section < self.sections.count) {
     return [[self.sections objectAtIndex:section] footerTitle];
     
   } else {
@@ -331,8 +320,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-  NIDASSERT(section < self.sections.count || 0 == self.sections.count);
-  if (section < self.sections.count) {
+  NIDASSERT((NSUInteger)section < self.sections.count || 0 == self.sections.count);
+  if ((NSUInteger)section < self.sections.count) {
     return [[[self.sections objectAtIndex:section] rows] count];
 
   } else {
@@ -382,12 +371,12 @@
 
   id object = nil;
 
-  NIDASSERT(section < self.sections.count);
-  if (section < self.sections.count) {
+  NIDASSERT((NSUInteger)section < self.sections.count);
+  if ((NSUInteger)section < self.sections.count) {
     NSArray* rows = [[self.sections objectAtIndex:section] rows];
 
-    NIDASSERT(row < [rows count]);
-    if (row < [rows count]) {
+    NIDASSERT((NSUInteger)row < rows.count);
+    if ((NSUInteger)row < rows.count) {
       object = [rows objectAtIndex:row];
     }
   }
@@ -423,17 +412,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 + (NITableViewModelFooter *)footerWithTitle:(NSString *)title {
-  return [[[self alloc] initWithTitle:title] autorelease];
+  return [[self alloc] initWithTitle:title];
 }
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-- (void)dealloc {
-  NI_RELEASE_SAFELY(_title);
-
-  [super dealloc];
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithTitle:(NSString *)title {
@@ -442,7 +422,6 @@
   }
   return self;
 }
-
 
 @end
 
@@ -458,18 +437,8 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-- (void)dealloc {
-  NI_RELEASE_SAFELY(_headerTitle);
-  NI_RELEASE_SAFELY(_footerTitle);
-  NI_RELEASE_SAFELY(_rows);
-
-  [super dealloc];
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 + (id)section {
-  return [[[self alloc] init] autorelease];
+  return [[self alloc] init];
 }
 
 

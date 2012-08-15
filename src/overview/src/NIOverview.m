@@ -24,6 +24,10 @@
 #import "NIOverviewSwizzling.h"
 #import "NIOverviewLogger.h"
 
+#if !defined(__has_feature) || !__has_feature(objc_arc)
+#error "Nimbus requires ARC support."
+#endif
+
 // Static state.
 static CGFloat  sOverviewHeight   = 60;
 static BOOL     sOverviewIsAwake  = NO;
@@ -83,17 +87,13 @@ void NIOverviewLogMethod(const char* message, unsigned length, BOOL withSyslogBa
 
   NIOverviewConsoleLogEntry* entry = [[NIOverviewConsoleLogEntry alloc]
                                       initWithLog:formattedLogMessage];
-  NI_RELEASE_SAFELY(formattedLogMessage);
 
   [[NIOverview logger] addConsoleLog:entry];
-  NI_RELEASE_SAFELY(entry);
 
   formattedLogMessage = [[NSString alloc] initWithFormat:
                          @"%@: %s\n", [formatter stringFromDate:[NSDate date]], message];
 
   fprintf(stderr, "%s", [formattedLogMessage UTF8String]);
-  
-  NI_RELEASE_SAFELY(formattedLogMessage);
 }
 
 #endif
@@ -185,8 +185,7 @@ void NIOverviewLogMethod(const char* message, unsigned length, BOOL withSyslogBa
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 + (void)didReceiveMemoryWarning {
   [sOverviewLogger addEventLog:
-   [[[NIOverviewEventLogEntry alloc] initWithType:NIOverviewEventDidReceiveMemoryWarning]
-    autorelease]];
+   [[NIOverviewEventLogEntry alloc] initWithType:NIOverviewEventDidReceiveMemoryWarning]];
 }
 
 
@@ -194,8 +193,7 @@ void NIOverviewLogMethod(const char* message, unsigned length, BOOL withSyslogBa
 + (void)heartbeat {
   [NIDeviceInfo beginCachedDeviceInfo];
   NIOverviewDeviceLogEntry* logEntry =
-  [[[NIOverviewDeviceLogEntry alloc] initWithTimestamp:[NSDate date]]
-   autorelease];
+  [[NIOverviewDeviceLogEntry alloc] initWithTimestamp:[NSDate date]];
   logEntry.bytesOfTotalDiskSpace = [NIDeviceInfo bytesOfTotalDiskSpace];
   logEntry.bytesOfFreeDiskSpace = [NIDeviceInfo bytesOfFreeDiskSpace];
   logEntry.bytesOfFreeMemory = [NIDeviceInfo bytesOfFreeMemory];
@@ -246,12 +244,11 @@ void NIOverviewLogMethod(const char* message, unsigned length, BOOL withSyslogBa
                                                  name: UIApplicationDidReceiveMemoryWarningNotification
                                                object: nil];
 
-    sOverviewHeartbeatTimer = [[NSTimer scheduledTimerWithTimeInterval: 0.5
+    sOverviewHeartbeatTimer = [NSTimer scheduledTimerWithTimeInterval: 0.5
                                                                   target: self
                                                                 selector: @selector(heartbeat)
                                                                 userInfo: nil
-                                                                 repeats: YES]
-                                 retain];
+                                                                 repeats: YES];
   }
 #endif
 }
@@ -264,7 +261,6 @@ void NIOverviewLogMethod(const char* message, unsigned length, BOOL withSyslogBa
     // Remove the old overview in case this gets called multiple times (not sure why you would
     // though).
     [sOverviewView removeFromSuperview];
-    NI_RELEASE_SAFELY(sOverviewView);
   }
 
   sOverviewView = [[NIOverviewView alloc] initWithFrame:[self frame]];
