@@ -145,6 +145,7 @@
   [super setBackgroundColor:backgroundColor];
 
   _scrollView.backgroundColor = backgroundColor;
+  _imageView.backgroundColor = backgroundColor; // Hsoi 01-Oct-2012 - added.
 }
 
 
