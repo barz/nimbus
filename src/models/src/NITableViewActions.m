@@ -35,7 +35,7 @@
 
 @interface NITableViewActions()
 
-@property (nonatomic, assign) UIViewController* controller;
+@property (nonatomic, weak) UIViewController* controller;
 @property (nonatomic, strong) NSMutableSet* forwardDelegates;
 @property (nonatomic, strong) NSMutableDictionary* objectMap;
 @property (nonatomic, strong) NSMutableSet* objectSet;
@@ -147,6 +147,20 @@
     }
   }
   return NO;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (NSMethodSignature *)methodSignatureForSelector:(SEL)selector {
+  NSMethodSignature *signature = [super methodSignatureForSelector:selector];
+  if (signature == nil) {
+    for (id delegate in self.forwardDelegates) {
+      if ([delegate respondsToSelector:selector]) {
+        signature = [delegate methodSignatureForSelector:selector];
+      }
+    }
+  }
+  return signature;
 }
 
 
@@ -279,6 +293,31 @@
       [delegate tableView:tableView willDisplayCell:cell forRowAtIndexPath:indexPath];
     }
   }
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (NSIndexPath *)tableView:(UITableView *)tableView
+    willSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+  NSIndexPath *newIndexPath = indexPath;
+  // Forward the invocation along.
+  for (id<UITableViewDelegate> delegate in self.forwardDelegates) {
+    if ([delegate respondsToSelector:_cmd]) {
+      newIndexPath = [delegate tableView:tableView willSelectRowAtIndexPath:newIndexPath];
+    }
+  }
+
+  if (newIndexPath == indexPath) {
+    if ([tableView.dataSource isKindOfClass:[NITableViewModel class]]) {
+      NITableViewModel* model = (NITableViewModel *)tableView.dataSource;
+      id object = [model objectAtIndexPath:indexPath];
+      if (![self isObjectActionable:object]) {
+        newIndexPath = nil; // Don't allow the cell to be selected.
+      }
+    }
+  }
+
+  return newIndexPath;
 }
 
 

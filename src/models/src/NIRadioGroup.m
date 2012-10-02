@@ -28,7 +28,7 @@
 static const NSInteger kInvalidSelection = NSIntegerMin;
 
 @interface NIRadioGroup()
-@property (nonatomic, readonly, assign) UIViewController* controller;
+@property (nonatomic, readonly, weak) UIViewController* controller;
 @property (nonatomic, readonly, retain) NSMutableDictionary* objectMap;
 @property (nonatomic, readonly, retain) NSMutableSet* objectSet;
 @property (nonatomic, readonly, retain) NSMutableArray* objectOrder;
@@ -129,6 +129,20 @@ static const NSInteger kInvalidSelection = NSIntegerMin;
     }
   }
   return NO;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (NSMethodSignature *)methodSignatureForSelector:(SEL)selector {
+  NSMethodSignature *signature = [super methodSignatureForSelector:selector];
+  if (signature == nil) {
+    for (id delegate in self.forwardDelegates) {
+      if ([delegate respondsToSelector:selector]) {
+        signature = [delegate methodSignatureForSelector:selector];
+      }
+    }
+  }
+  return signature;
 }
 
 

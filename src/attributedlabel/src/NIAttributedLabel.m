@@ -33,12 +33,26 @@ static NSString* const kLinkAttributedName = @"NIAttributedLabel:Link";
 // "within" the link.
 static const CGFloat kTouchGutter = 22;
 
+CGSize NISizeOfAttributedStringConstrainedToSize(NSAttributedString *attributedString, CGSize size) {
+  CFAttributedStringRef attributedStringRef = (__bridge CFAttributedStringRef)attributedString;
+  CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString(attributedStringRef);
+  CFRange fitCFRange = CFRangeMake(0,0);
+  CGSize newSize = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, 0), NULL, size, &fitCFRange);
+
+  if (nil != framesetter) {
+    CFRelease(framesetter);
+    framesetter = nil;
+  }
+
+  return CGSizeMake(ceilf(newSize.width), ceilf(newSize.height));
+}
+
 @interface NIAttributedLabelImage : NSObject
 @property (nonatomic, assign) NSInteger index;
 @property (nonatomic, strong) UIImage* image;
 @property (nonatomic, assign) UIEdgeInsets margins;
 @property (nonatomic, assign) NIVerticalTextAlignment verticalTextAlignment;
-@property (nonatomic, assign) NIAttributedLabel* label;
+@property (nonatomic, weak) NIAttributedLabel* label;
 @end
 
 @implementation NIAttributedLabelImage
@@ -194,17 +208,7 @@ static const CGFloat kTouchGutter = 22;
     return CGSizeZero;
   }
 
-  CFAttributedStringRef attributedStringRef = (__bridge CFAttributedStringRef)self.mutableAttributedString;
-  CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString(attributedStringRef);
-  CFRange fitCFRange = CFRangeMake(0,0);
-  CGSize newSize = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, 0), NULL, size, &fitCFRange);
-
-  if (nil != framesetter) {
-    CFRelease(framesetter);
-    framesetter = nil;
-  }
-
-  return CGSizeMake(ceilf(newSize.width), ceilf(newSize.height));
+  return NISizeOfAttributedStringConstrainedToSize([self mutableAttributedStringWithAdditions], size);
 }
 
 
