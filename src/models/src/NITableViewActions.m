@@ -35,11 +35,11 @@
 
 @interface NITableViewActions()
 
-@property (nonatomic, weak) UIViewController* controller;
-@property (nonatomic, strong) NSMutableSet* forwardDelegates;
-@property (nonatomic, strong) NSMutableDictionary* objectMap;
-@property (nonatomic, strong) NSMutableSet* objectSet;
-@property (nonatomic, strong) NSMutableDictionary* classMap;
+@property (nonatomic, NI_WEAK) UIViewController* controller;
+@property (nonatomic, NI_STRONG) NSMutableSet* forwardDelegates;
+@property (nonatomic, NI_STRONG) NSMutableDictionary* objectMap;
+@property (nonatomic, NI_STRONG) NSMutableSet* objectSet;
+@property (nonatomic, NI_STRONG) NSMutableDictionary* classMap;
 
 @end
 
@@ -268,17 +268,14 @@
 
     if ([self isObjectActionable:object]) {
       NITableViewAction* action = [self actionForObjectOrClassOfObject:object];
-      UITableViewCellAccessoryType accessoryType = UITableViewCellAccessoryNone;
 
       // Detail disclosure indicator takes precedence over regular disclosure indicator.
       if (nil != action.detailAction) {
-        accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
+        cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
 
       } else if (nil != action.navigateAction) {
-        accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
       }
-
-      cell.accessoryType = accessoryType;
 
       // If the cell is tappable, reflect that in the selection style.
       if (action.navigateAction || action.tapAction) {
@@ -293,31 +290,6 @@
       [delegate tableView:tableView willDisplayCell:cell forRowAtIndexPath:indexPath];
     }
   }
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-- (NSIndexPath *)tableView:(UITableView *)tableView
-    willSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-  NSIndexPath *newIndexPath = indexPath;
-  // Forward the invocation along.
-  for (id<UITableViewDelegate> delegate in self.forwardDelegates) {
-    if ([delegate respondsToSelector:_cmd]) {
-      newIndexPath = [delegate tableView:tableView willSelectRowAtIndexPath:newIndexPath];
-    }
-  }
-
-  if (newIndexPath == indexPath) {
-    if ([tableView.dataSource isKindOfClass:[NITableViewModel class]]) {
-      NITableViewModel* model = (NITableViewModel *)tableView.dataSource;
-      id object = [model objectAtIndexPath:indexPath];
-      if (![self isObjectActionable:object]) {
-        newIndexPath = nil; // Don't allow the cell to be selected.
-      }
-    }
-  }
-
-  return newIndexPath;
 }
 
 
