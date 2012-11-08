@@ -37,6 +37,10 @@ static NSString* const kEllipsesCharacter = @"\u2026";
 static const CGFloat kTouchGutter = 22;
 
 CGSize NISizeOfAttributedStringConstrainedToSize(NSAttributedString *attributedString, CGSize size, NSInteger numberOfLines) {
+  if (nil == attributedString) {
+    return CGSizeZero;
+  }
+
   CFAttributedStringRef attributedStringRef = (__bridge CFAttributedStringRef)attributedString;
   CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString(attributedStringRef);
   CFRange range = CFRangeMake(0, 0);
@@ -44,13 +48,13 @@ CGSize NISizeOfAttributedStringConstrainedToSize(NSAttributedString *attributedS
   // This logic adapted from @mattt's TTTAttributedLabel
   // https://github.com/mattt/TTTAttributedLabel
 
-  if (numberOfLines > 1) {
+  if (numberOfLines > 0 && nil != framesetter) {
     CGMutablePathRef path = CGPathCreateMutable();
     CGPathAddRect(path, NULL, CGRectMake(0, 0, size.width, size.height));
     CTFrameRef frame = CTFramesetterCreateFrame(framesetter, CFRangeMake(0, 0), path, NULL);
     CFArrayRef lines = CTFrameGetLines(frame);
 
-    if (CFArrayGetCount(lines) > 0) {
+    if (nil != lines && CFArrayGetCount(lines) > 0) {
       NSInteger lastVisibleLineIndex = MIN(numberOfLines, CFArrayGetCount(lines)) - 1;
       CTLineRef lastVisibleLine = CFArrayGetValueAtIndex(lines, lastVisibleLineIndex);
 
@@ -529,14 +533,12 @@ CGSize NISizeOfAttributedStringConstrainedToSize(NSAttributedString *attributedS
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setLineHeight:(CGFloat)lineHeight {
-  if (_lineHeight != lineHeight ) {
-    _lineHeight = lineHeight;
+  _lineHeight = lineHeight;
 
-    if (nil != self.mutableAttributedString) {
-      CTTextAlignment alignment = [self.class alignmentFromUITextAlignment:self.textAlignment];
-      CTLineBreakMode lineBreak = [self.class lineBreakModeFromUILineBreakMode:self.lineBreakMode];
-      [self.mutableAttributedString setTextAlignment:alignment lineBreakMode:lineBreak lineHeight:self.lineHeight];
-    }
+  if (nil != self.mutableAttributedString) {
+    CTTextAlignment alignment = [self.class alignmentFromUITextAlignment:self.textAlignment];
+    CTLineBreakMode lineBreak = [self.class lineBreakModeFromUILineBreakMode:self.lineBreakMode];
+    [self.mutableAttributedString setTextAlignment:alignment lineBreakMode:lineBreak lineHeight:self.lineHeight];
   }
 }
 
@@ -1154,8 +1156,8 @@ CGSize NISizeOfAttributedStringConstrainedToSize(NSAttributedString *attributedS
 
     for (NIAttributedLabelImage *labelImage in self.images) {
       CTRunDelegateCallbacks callbacks;
+      memset(&callbacks, 0, sizeof(CTRunDelegateCallbacks));
       callbacks.version = kCTRunDelegateVersion1;
-      callbacks.dealloc = ImageDelegateDeallocCallback;
       callbacks.getAscent = ImageDelegateGetAscentCallback;
       callbacks.getDescent = ImageDelegateGetDescentCallback;
       callbacks.getWidth = ImageDelegateGetWidthCallback;
@@ -1163,6 +1165,7 @@ CGSize NISizeOfAttributedStringConstrainedToSize(NSAttributedString *attributedS
 
       NSMutableAttributedString* space = [[NSMutableAttributedString alloc] initWithString:@" "];
       CFAttributedStringSetAttribute((__bridge CFMutableAttributedStringRef)space, CFRangeMake(0, 1), kCTRunDelegateAttributeName, delegate);
+      CFRelease(delegate);
       [attributedString insertAttributedString:space atIndex:labelImage.index];
     }
   }
@@ -1524,13 +1527,6 @@ CGSize NISizeOfAttributedStringConstrainedToSize(NSAttributedString *attributedS
 - (void)actionSheetCancel:(UIActionSheet *)actionSheet {
   self.actionSheetLink = nil;
   [self setNeedsDisplay];
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-void ImageDelegateDeallocCallback(void* refCon) {
-  NIAttributedLabelImage *labelImage = (__bridge NIAttributedLabelImage *)refCon;
-  [labelImage.label.images removeObject:labelImage];
 }
 
 
