@@ -16,7 +16,7 @@
 
 #import "NIOverviewPageView.h"
 
-#ifdef DEBUG
+#if defined(DEBUG) || defined(NI_DEBUG)
 
 #import "NIOverview.h"
 #import "NIDeviceInfo.h"
@@ -265,6 +265,11 @@ static const CGFloat kGraphRightMargin = 5;
     self.pageTitle = NSLocalizedString(@"Memory", @"Overview Page Title: Memory");
     
     self.graphView.dataSource = self;
+
+    UITapGestureRecognizer* tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTap:)];
+    // We still want to be able to drag the pages.
+    tap.cancelsTouchesInView = NO;
+    [self addGestureRecognizer:tap];
   }
   return self;
 }
@@ -285,6 +290,13 @@ static const CGFloat kGraphRightMargin = 5;
   [NIDeviceInfo endCachedDeviceInfo];
 
   [self setNeedsLayout];
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (void)didTap:(UIGestureRecognizer *)gesture {
+  // Simulate low memory warning while tapping on NIOverviewMemoryPageView
+  [NIDeviceInfo simulateLowMemoryWarning];
 }
 
 
@@ -443,7 +455,7 @@ static const CGFloat kGraphRightMargin = 5;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)dealloc {
-  [[NSOperationQueue mainQueue] removeObserver:self];
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 

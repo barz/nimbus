@@ -153,9 +153,9 @@ UILabel {
 
   font: <font-size> <font-name>   {label.font}
   font-size: <font-size>          {label.font}
-  font-name: <font-name>          {label.font}
+  font-family: <font-name>        {label.font}
 
-  Can not be used in conjunction with font/font-name properties. Use the italic/bold font
+  Can not be used in conjunction with font/font-family properties. Use the italic/bold font
   name instead.
   font-style: [italic|normal]     {label.font}
   font-weight: [bold|normal]      {label.font}
@@ -164,6 +164,7 @@ UILabel {
 
   text-shadow: <color> <x-offset> <y-offset> {label.shadowColor label.shadowOffset}
 
+  -ios-highlighted-color: <color>      {label.highlightedTextColor}
   -ios-line-break-mode: [wrap|character-wrap|clip|head-truncate|tail-truncate|middle-truncate] [label.lineBreakMode]
   -ios-number-of-lines: xx             {label.numberOfLines}
   -ios-minimum-font-size: <font-size>  {label.minimumFontSize}
