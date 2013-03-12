@@ -29,6 +29,10 @@ static const NSTimeInterval kLongPressTimeInterval = 0.5;
 static const CGFloat kLongPressGutter = 22;
 static NSString* const kLinkAttributedName = @"NIAttributedLabel:Link";
 
+CGFloat ImageDelegateGetAscentCallback(void* refCon);
+CGFloat ImageDelegateGetDescentCallback(void* refCon);
+CGFloat ImageDelegateGetWidthCallback(void* refCon);
+
 // \u2026 is the Unicode horizontal ellipsis character code
 static NSString* const kEllipsesCharacter = @"\u2026";
 
@@ -636,7 +640,7 @@ CGSize NISizeOfAttributedStringConstrainedToSize(NSAttributedString *attributedS
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSArray *)_matchesFromAttributedString:(NSString *)string {
   NSError* error = nil;
-  NSDataDetector* linkDetector = [NSDataDetector dataDetectorWithTypes:self.dataDetectorTypes
+  NSDataDetector* linkDetector = [NSDataDetector dataDetectorWithTypes:(NSTextCheckingTypes)self.dataDetectorTypes
                                                                  error:&error];
   NSRange range = NSMakeRange(0, string.length);
 
@@ -1001,14 +1005,9 @@ CGSize NISizeOfAttributedStringConstrainedToSize(NSAttributedString *attributedS
   CGPoint point = [touch locationInView:self];
 
   if (nil != self.originalLink) {
-    if ([self isPoint:point nearLink:self.originalLink]) {
-      // This old-style method is deprecated, please update to the newer delegate method that supports
-      // more data types.
-      NIDASSERT(![self.delegate respondsToSelector:@selector(attributedLabel:didSelectLink:atPoint:)]);
-
-      if ([self.delegate respondsToSelector:@selector(attributedLabel:didSelectTextCheckingResult:atPoint:)]) {
-        [self.delegate attributedLabel:self didSelectTextCheckingResult:self.originalLink atPoint:point];
-      }
+    if ([self isPoint:point nearLink:self.originalLink]
+        && [self.delegate respondsToSelector:@selector(attributedLabel:didSelectTextCheckingResult:atPoint:)]) {
+      [self.delegate attributedLabel:self didSelectTextCheckingResult:self.originalLink atPoint:point];
     }
   }
 
@@ -1112,7 +1111,9 @@ CGSize NISizeOfAttributedStringConstrainedToSize(NSAttributedString *attributedS
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)_applyLinkStyleWithResults:(NSArray *)results toAttributedString:(NSMutableAttributedString *)attributedString {
   for (NSTextCheckingResult* result in results) {
-    [attributedString setTextColor:self.linkColor range:result.range];
+    if (self.linkColor) {
+      [attributedString setTextColor:self.linkColor range:result.range];
+    }
 
     // We add a no-op attribute in order to force a run to exist for each link. Otherwise the
     // runCount will be one in this line, causing the entire line to be highlighted rather than
@@ -1268,7 +1269,7 @@ CGSize NISizeOfAttributedStringConstrainedToSize(NSAttributedString *attributedS
           imageBoxOriginY = lineBottomY + (lineHeight - imageBoxHeight);
           break;
         case NIVerticalTextAlignmentMiddle:
-          imageBoxOriginY = lineBottomY + (lineHeight - imageBoxHeight) / 2.0;
+          imageBoxOriginY = lineBottomY + (lineHeight - imageBoxHeight) / 2.f;
           break;
         case NIVerticalTextAlignmentBottom:
           imageBoxOriginY = lineBottomY;

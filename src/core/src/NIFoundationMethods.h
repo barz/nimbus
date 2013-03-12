@@ -77,6 +77,28 @@ CGRect NIRectExpand(CGRect rect, CGFloat dx, CGFloat dy);
 CGRect NIRectShift(CGRect rect, CGFloat dx, CGFloat dy);
 
 /**
+ * Inverse of UIEdgeInsetsInsetRect.
+ *
+ *      Example result: CGRectMake(x - left, y - top,
+ *                                 w + left + right, h + top + bottom)
+ */
+CGRect NIEdgeInsetsOutsetRect(CGRect rect, UIEdgeInsets outsets);
+
+/**
+ * Returns the x position that will center size within containerSize.
+ *
+ *      Example result: floorf((containerSize.width - size.width) / 2.f)
+ */
+CGFloat NICenterX(CGSize containerSize, CGSize size);
+
+/**
+ * Returns the y position that will center size within containerSize.
+ *
+ *      Example result: floorf((containerSize.height - size.height) / 2.f)
+ */
+CGFloat NICenterY(CGSize containerSize, CGSize size);
+
+/**
  * Returns a rect that will center viewToCenter within containerView.
  *
  *      @return a CGPoint that will center viewToCenter within containerView.

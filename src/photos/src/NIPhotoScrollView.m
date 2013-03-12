@@ -298,6 +298,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setLoading:(BOOL)loading {
+  _loading = loading;
+
   if (loading) {
     [_loadingView startAnimating];
   } else {
