@@ -50,6 +50,9 @@ static NSString* const kActivityIndicatorStyleKey = @"-ios-activity-indicator-st
 static NSString* const kAutoresizingKey = @"-ios-autoresizing";
 static NSString* const kTableViewCellSeparatorStyleKey = @"-ios-table-view-cell-separator-style";
 static NSString* const kScrollViewIndicatorStyleKey = @"-ios-scroll-view-indicator-style";
+static NSString* const kPaddingKey = @"padding";
+static NSString* const kHPaddingKey = @"-mobile-hpadding";
+static NSString* const kVPaddingKey = @"-mobile-vpadding";
 
 // This color table is generated on-demand and is released when a memory warning is encountered.
 static NSDictionary* sColorTable = nil;
@@ -178,6 +181,56 @@ return _##name; \
   return _textAlignment;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+-(BOOL)hasHorizontalPadding {
+  return nil != [_ruleset objectForKey:kPaddingKey] || nil != [_ruleset objectForKey:kHPaddingKey];
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+-(NICSSUnit)horizontalPadding {
+  NIDASSERT([self hasHorizontalPadding]);
+  NSArray *css = [_ruleset objectForKey:kHPaddingKey];
+  if (css && css.count > 0) {
+    return [NICSSRuleset unitFromCssValues:css];
+  }
+  css = [_ruleset objectForKey:kPaddingKey];
+  if (css && css.count > 1) {
+    return [NICSSRuleset unitFromCssValues:css offset:1];
+  }
+  if (css && css.count == 1) {
+    return [NICSSRuleset unitFromCssValues:css];
+  } else {
+    NICSSUnit unit;
+    NIDASSERT([css count] > 0);
+    unit.type = CSS_PIXEL_UNIT;
+    unit.value = 0;
+    return unit;
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+-(BOOL)hasVerticalPadding {
+  return nil != [_ruleset objectForKey:kPaddingKey] || nil != [_ruleset objectForKey:kVPaddingKey];
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+-(NICSSUnit)verticalPadding {
+  NIDASSERT([self hasVerticalPadding]);
+  NSArray *css = [_ruleset objectForKey:kVPaddingKey];
+  if (css && css.count > 0) {
+    return [NICSSRuleset unitFromCssValues:css];
+  }
+  css = [_ruleset objectForKey:kPaddingKey];
+  if (css && css.count > 0) {
+    return [NICSSRuleset unitFromCssValues:css];
+  } else {
+    NICSSUnit unit;
+    NIDASSERT([css count] > 0);
+    unit.type = CSS_PIXEL_UNIT;
+    unit.value = 0;
+    return unit;
+  }
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (BOOL)hasFont {
@@ -346,26 +399,26 @@ return _##name; \
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-- (UILineBreakMode)lineBreakMode {
+- (NSLineBreakMode)lineBreakMode {
   NIDASSERT([self hasLineBreakMode]);
   if (!_is.cached.LineBreakMode) {
     NSArray* values = [_ruleset objectForKey:kLineBreakModeKey];
     NIDASSERT([values count] == 1);
     NSString* value = [values objectAtIndex:0];
     if ([value isEqualToString:@"wrap"]) {
-      _lineBreakMode = UILineBreakModeWordWrap;
+      _lineBreakMode = NSLineBreakByWordWrapping;
     } else if ([value isEqualToString:@"character-wrap"]) {
-      _lineBreakMode = UILineBreakModeCharacterWrap;
+      _lineBreakMode = NSLineBreakByCharWrapping;
     } else if ([value isEqualToString:@"clip"]) {
-      _lineBreakMode = UILineBreakModeClip;
+      _lineBreakMode = NSLineBreakByClipping;
     } else if ([value isEqualToString:@"head-truncate"]) {
-      _lineBreakMode = UILineBreakModeHeadTruncation;
+      _lineBreakMode = NSLineBreakByTruncatingHead;
     } else if ([value isEqualToString:@"tail-truncate"]) {
-      _lineBreakMode = UILineBreakModeTailTruncation;
+      _lineBreakMode = NSLineBreakByTruncatingTail;
     } else if ([value isEqualToString:@"middle-truncate"]) {
-      _lineBreakMode = UILineBreakModeMiddleTruncation;
+      _lineBreakMode = NSLineBreakByTruncatingMiddle;
     } else {
-      _lineBreakMode = UILineBreakModeWordWrap;
+      _lineBreakMode = NSLineBreakByWordWrapping;
     }
     _is.cached.LineBreakMode = YES;
   }
@@ -1006,8 +1059,12 @@ RULE_ELEMENT(horizontalAlign, HorizontalAlign, @"-mobile-content-halign", UICont
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 + (NICSSUnit)unitFromCssValues:(NSArray*)cssValues {
+  return [self unitFromCssValues:cssValues offset: 0];
+}
+
++ (NICSSUnit)unitFromCssValues:(NSArray*)cssValues offset: (int) offset {
   NICSSUnit returnUnits;
-  NSString *unitValue = [cssValues objectAtIndex:0];
+  NSString *unitValue = [cssValues objectAtIndex:offset];
 	if ([unitValue caseInsensitiveCompare:@"auto"] == NSOrderedSame) {
     returnUnits.type = CSS_AUTO_UNIT;
     returnUnits.value = 0;
