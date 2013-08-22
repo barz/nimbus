@@ -56,7 +56,7 @@ NI_FIX_CATEGORY_BUG(NSStringNimbusCore)
   return [self sizeWithFont:font
           constrainedToSize:CGSizeMake(width, CGFLOAT_MAX)
               lineBreakMode:lineBreakMode].height;
-#pragma GCC diangostic pop
+#pragma GCC diagnostic pop
 }
 // COV_NF_END
 
