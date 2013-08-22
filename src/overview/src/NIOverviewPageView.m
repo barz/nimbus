@@ -516,11 +516,18 @@ static const CGFloat kGraphRightMargin = 5;
   _logScrollView.frame = CGRectMake(0, 0,
                                     self.bounds.size.width,
                                     self.bounds.size.height);
-  
+
+    // FIXME: Hsoi 2013-08-22 - Undo suppression of Xcode5/iOS7 deprecated code.
+    // Instead of fixing Nimbus's deprecated code (because I have the impression they are working
+    // on this, just not publicly), we'll just suppress warnings for now and wait for their
+    // official update.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   CGSize labelSize = [_logLabel.text sizeWithFont: _logLabel.font
                                 constrainedToSize: CGSizeMake(_logScrollView.bounds.size.width,
                                                               CGFLOAT_MAX)
                                     lineBreakMode: _logLabel.lineBreakMode];
+#pragma GCC diagnostic pop
   _logLabel.frame = CGRectMake(0, 0,
                                labelSize.width, labelSize.height);
   
@@ -1011,9 +1018,22 @@ static NIViewInspectionView *visibleInspectionView = nil;
                value:(NSString *)value
              atPoint:(CGPoint)point {
   UIFont *infoFont = [UIFont systemFontOfSize:[UIFont systemFontSize]];
+    // FIXME: Hsoi 2013-08-22 - Undo suppression of Xcode5/iOS7 deprecated code.
+    // Instead of fixing Nimbus's deprecated code (because I have the impression they are working
+    // on this, just not publicly), we'll just suppress warnings for now and wait for their
+    // official update.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   CGSize size = [title drawAtPoint:point withFont:infoFont];
+#pragma GCC diagnostic pop
   point = CGPointMake(point.x + size.width, point.y);
   CGRect bounds = self.bounds;
+    // FIXME: Hsoi 2013-08-22 - Undo suppression of Xcode5/iOS7 deprecated code.
+    // Instead of fixing Nimbus's deprecated code (because I have the impression they are working
+    // on this, just not publicly), we'll just suppress warnings for now and wait for their
+    // official update.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   [value drawAtPoint:point
       forWidth:bounds.size.width - point.x - kPadding
       withFont:infoFont
@@ -1021,6 +1041,7 @@ static NIViewInspectionView *visibleInspectionView = nil;
       actualFontSize:nil
       lineBreakMode:NSLineBreakByTruncatingMiddle
       baselineAdjustment:UIBaselineAdjustmentAlignBaselines];
+#pragma GCC diagnostic pop
   return size.height;
 }
 

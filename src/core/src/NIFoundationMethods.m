@@ -87,6 +87,12 @@ CGSize NISizeOfStringWithLabelProperties(NSString *string, CGSize constrainedToS
 
   CGFloat lineHeight = font.lineHeight;
   CGSize size = CGSizeZero;
+    // FIXME: Hsoi 2013-08-22 - Undo suppression of Xcode5/iOS7 deprecated code.
+    // Instead of fixing Nimbus's deprecated code (because I have the impression they are working
+    // on this, just not publicly), we'll just suppress warnings for now and wait for their
+    // official update.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
   if (numberOfLines == 1) {
     size = [string sizeWithFont:font forWidth:constrainedToSize.width lineBreakMode:lineBreakMode];
@@ -97,7 +103,7 @@ CGSize NISizeOfStringWithLabelProperties(NSString *string, CGSize constrainedToS
       size.height = MIN(size.height, numberOfLines * lineHeight);
     }
   }
-
+#pragma GCC diagnostic pop
   return size;
 }
 

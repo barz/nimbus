@@ -153,6 +153,12 @@ CGFloat NIOverviewStatusBarHeight(void) {
   }
 
   // TODO (jverkoey July 23, 2011): Add a translucent property to the overview view.
+  // FIXME: Hsoi 2013-08-22 - Undo suppression of Xcode5/iOS7 deprecated code.
+    // Instead of fixing Nimbus's deprecated code (because I have the impression they are working
+    // on this, just not publicly), we'll just suppress warnings for now and wait for their
+    // official update.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   if (UIStatusBarStyleDefault == statusBarStyle
       || UIStatusBarStyleBlackOpaque == statusBarStyle) {
     [[NIOverview view] setTranslucent:NO];
@@ -160,7 +166,7 @@ CGFloat NIOverviewStatusBarHeight(void) {
   } else if (UIStatusBarStyleBlackTranslucent == statusBarStyle) {
     [[NIOverview view] setTranslucent:YES];
   }
-
+#pragma GCC diagnostic pop
   if (animated) {
     [UIView commitAnimations];
   }
