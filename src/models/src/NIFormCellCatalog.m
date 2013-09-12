@@ -621,12 +621,15 @@ static const CGFloat kDatePickerTextFieldRightMargin = 5;
 - (BOOL)shouldUpdateCellWithObject:(NISegmentedControlFormElement *)segmentedControlElement {
   if ([super shouldUpdateCellWithObject:segmentedControlElement]) {
     self.textLabel.text = segmentedControlElement.labelText;
+      
+    __weak NISegmentedControlFormElementCell* wself = self;
     [segmentedControlElement.segments enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+      NISegmentedControlFormElementCell* sself = wself;
       if ([obj isKindOfClass:[NSString class]]) {
-        [_segmentedControl insertSegmentWithTitle:obj atIndex:idx animated:NO];
+        [sself.segmentedControl insertSegmentWithTitle:obj atIndex:idx animated:NO];
 
       } else if ([obj isKindOfClass:[UIImage class]]) {
-        [_segmentedControl insertSegmentWithImage:obj atIndex:idx animated:NO];
+        [sself.segmentedControl insertSegmentWithImage:obj atIndex:idx animated:NO];
       }
     }];
     _segmentedControl.tag = self.tag;

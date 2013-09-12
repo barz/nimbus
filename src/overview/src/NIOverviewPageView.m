@@ -1070,8 +1070,10 @@ static NIViewInspectionView *visibleInspectionView = nil;
                    self.bounds.size.height - 80 - 30 - kPadding, 100, 80);
     autoresizingView_.frame = CGRectInset(containerView_.bounds, 20, 20);
 
+    __weak NIViewInspectionView* wself = self;
     void (^animationBlock)(void) = ^{
-      containerView_.frame = NIRectExpand(containerView_.frame, 50, 30);
+      NIViewInspectionView* sself = wself;
+      sself->containerView_.frame = NIRectExpand(sself->containerView_.frame, 50, 30);
     };
 
     [UIView animateWithDuration:kAutoresizingAnimationDuration
