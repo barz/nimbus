@@ -585,7 +585,7 @@ static NSString* const sInstagramScheme = @"instagram:";
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-+ (NSURL *)urlForInstagramImageAtFilePath:(NSString *)filePath error:(NSError **)error {
++ (NSURL *)urlForInstagramImageAtFilePath:(NSString *)filePath error:(NSError * __autoreleasing *)error {
   if (![self instagramIsInstalled]) {
     return nil;
   }

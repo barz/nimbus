@@ -235,7 +235,7 @@ static const CGFloat kGraphRightMargin = 5;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (BOOL)nextEventInGraphView: (NIOverviewGraphView *)graphView
                       xValue: (CGFloat *)xValue
-                       color: (UIColor **)color {
+                       color: (UIColor * __autoreleasing *)color {
   static NSArray* sEventColors = nil;
   if (nil == sEventColors) {
     sEventColors = [NSArray arrayWithObjects:
