@@ -589,7 +589,7 @@ static const CGFloat kDatePickerTextFieldRightMargin = 5;
   CGRect frame = _segmentedControl.frame;
   frame.size.height = self.contentView.frame.size.height - (2 * kSegmentedControlMargin);
   frame.origin.y = floorf((self.contentView.frame.size.height - frame.size.height) / 2);
-  frame.origin.x = self.contentView.frame.size.width - frame.size.width - kSegmentedControlMargin;
+  frame.origin.x = CGRectGetMaxX(contentFrame) - frame.size.width - kSegmentedControlMargin;
   _segmentedControl.frame = frame;
 
   frame = self.textLabel.frame;
@@ -621,12 +621,15 @@ static const CGFloat kDatePickerTextFieldRightMargin = 5;
 - (BOOL)shouldUpdateCellWithObject:(NISegmentedControlFormElement *)segmentedControlElement {
   if ([super shouldUpdateCellWithObject:segmentedControlElement]) {
     self.textLabel.text = segmentedControlElement.labelText;
+      
+    __weak NISegmentedControlFormElementCell* wself = self;
     [segmentedControlElement.segments enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+      NISegmentedControlFormElementCell* sself = wself;
       if ([obj isKindOfClass:[NSString class]]) {
-        [_segmentedControl insertSegmentWithTitle:obj atIndex:idx animated:NO];
+        [sself.segmentedControl insertSegmentWithTitle:obj atIndex:idx animated:NO];
 
       } else if ([obj isKindOfClass:[UIImage class]]) {
-        [_segmentedControl insertSegmentWithImage:obj atIndex:idx animated:NO];
+        [sself.segmentedControl insertSegmentWithImage:obj atIndex:idx animated:NO];
       }
     }];
     _segmentedControl.tag = self.tag;

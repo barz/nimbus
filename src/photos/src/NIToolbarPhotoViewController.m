@@ -67,7 +67,14 @@
     self.scrubberIsEnabled = NIIsPad();
 
     // Allow the photos to display beneath the status bar.
+    // FIXME: Hsoi 2013-08-22 - Undo suppression of Xcode5/iOS7 deprecated code.
+      // Instead of fixing Nimbus's deprecated code (because I have the impression they are working
+      // on this, just not publicly), we'll just suppress warnings for now and wait for their
+      // official update.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     self.wantsFullScreenLayout = YES;
+#pragma GCC diagnostic pop
   }
   return self;
 }
@@ -217,6 +224,12 @@
 - (void)viewWillAppear:(BOOL)animated {
   [super viewWillAppear:animated];
 
+    // FIXME: Hsoi 2013-08-22 - Undo suppression of Xcode5/iOS7 deprecated code.
+    // Instead of fixing Nimbus's deprecated code (because I have the impression they are working
+    // on this, just not publicly), we'll just suppress warnings for now and wait for their
+    // official update.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   [[UIApplication sharedApplication] setStatusBarStyle: (NIIsPad()
                                                          ? UIStatusBarStyleBlackOpaque
                                                          : UIStatusBarStyleBlackTranslucent)
@@ -225,7 +238,8 @@
   UINavigationBar* navBar = self.navigationController.navigationBar;
   navBar.barStyle = UIBarStyleBlack;
   navBar.translucent = YES;
-
+#pragma GCC diagnostic pop
+    
   _previousButton.enabled = [self.photoAlbumView hasPrevious];
   _nextButton.enabled = [self.photoAlbumView hasNext];
 }

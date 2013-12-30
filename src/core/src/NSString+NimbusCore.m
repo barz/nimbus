@@ -47,9 +47,16 @@ NI_FIX_CATEGORY_BUG(NSStringNimbusCore)
 - (CGFloat)heightWithFont:(UIFont*)font
        constrainedToWidth:(CGFloat)width
             lineBreakMode:(NSLineBreakMode)lineBreakMode {
+    // FIXME: Hsoi 2013-08-22 - Undo suppression of Xcode5/iOS7 deprecated code.
+    // Instead of fixing Nimbus's deprecated code (because I have the impression they are working
+    // on this, just not publicly), we'll just suppress warnings for now and wait for their
+    // official update.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   return [self sizeWithFont:font
           constrainedToSize:CGSizeMake(width, CGFLOAT_MAX)
               lineBreakMode:lineBreakMode].height;
+#pragma GCC diagnostic pop
 }
 // COV_NF_END
 
