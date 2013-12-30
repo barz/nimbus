@@ -47,6 +47,23 @@ BOOL NIIsPhone(void) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+// Hsoi 2013-12-30 - Added
+// See: http://stackoverflow.com/questions/12446990/how-to-detect-iphone-5-widescreen-devices
+#define IS_WIDESCREEN ( fabs( ( double )[ [ UIScreen mainScreen ] bounds ].size.height - ( double )568 ) < DBL_EPSILON )
+BOOL NIIsPhone5(void) {
+    static NSInteger isPhone = -1;
+    if (isPhone < 0) {
+        if (NIIsPhone() && IS_WIDESCREEN) {
+            isPhone = 1;
+        }
+        else {
+            isPhone = 0;
+        }
+    }
+    return isPhone > 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 BOOL NIDeviceOSVersionIsAtLeast(double versionNumber) {
   return kCFCoreFoundationVersionNumber >= versionNumber;
 }

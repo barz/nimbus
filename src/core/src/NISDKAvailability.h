@@ -181,6 +181,17 @@ BOOL NIIsPad(void);
  *      @returns YES if the device is an iPhone or iPod touch.
  */
 BOOL NIIsPhone(void);
+    
+
+// Hsoi 2013-12-30 - Added NIIsPhone5
+/**
+ *  Checks whether the device the app is currently runnong on is an iPhone/iPod touch 5
+ *  (4" high screen) or not.
+ *
+ *  @return YES if the device is an iPhone or iPod touch with the 4" screen.
+ */
+BOOL NIIsPhone5(void);
+
 
 /**
  * Checks whether the device's OS version is at least the given version number.
