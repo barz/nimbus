@@ -431,7 +431,7 @@ static NSString* const sInstagramScheme = @"instagram:";
   return [[UIApplication sharedApplication] openURL:[NSURL URLWithString:urlPath]];
 }
 
-+ (NSURL *)urlForInstagramImageAtFilePath:(NSString *)filePath error:(NSError **)error {
++ (NSURL *)urlForInstagramImageAtFilePath:(NSString *)filePath error:(NSError * __autoreleasing *)error {
   if (![self instagramIsInstalled]) {
     return nil;
   }
