@@ -662,13 +662,13 @@ static const CGFloat kGraphRightMargin = 5;
                         NIStringFromBytes(imageCache.maxNumberOfPixels)];
 
     NIOverviewImageMemoryCacheEntry* imageEntry = [[NIOverviewImageMemoryCacheEntry alloc] init];
-    imageEntry.numberOfPixels = imageCache.numberOfPixels;
-    imageEntry.maxNumberOfPixels = imageCache.maxNumberOfPixels;
-    imageEntry.maxNumberOfPixelsUnderStress = imageCache.maxNumberOfPixelsUnderStress;
+    imageEntry.numberOfPixels = (NSUInteger)imageCache.numberOfPixels;
+    imageEntry.maxNumberOfPixels = (NSUInteger)imageCache.maxNumberOfPixels;
+    imageEntry.maxNumberOfPixelsUnderStress = (NSUInteger)imageCache.maxNumberOfPixelsUnderStress;
     entry = imageEntry;
 
   } else {
-    self.label1.text = [NSString stringWithFormat:@"%d objects", self.cache.count];
+    self.label1.text = [NSString stringWithFormat:@"%lu objects", (unsigned long)self.cache.count];
     self.label2.text = nil;
 
     entry = [[NIOverviewMemoryCacheEntry alloc] init];
