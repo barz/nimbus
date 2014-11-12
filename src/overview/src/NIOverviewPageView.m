@@ -668,7 +668,7 @@ static const CGFloat kGraphRightMargin = 5;
     entry = imageEntry;
 
   } else {
-    self.label1.text = [NSString stringWithFormat:@"%lu objects", (unsigned long)self.cache.count];
+    self.label1.text = [NSString stringWithFormat:@"%zd objects", self.cache.count];
     self.label2.text = nil;
 
     entry = [[NIOverviewMemoryCacheEntry alloc] init];
